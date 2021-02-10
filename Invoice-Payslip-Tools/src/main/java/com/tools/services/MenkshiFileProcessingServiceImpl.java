@@ -655,12 +655,13 @@ public class MenkshiFileProcessingServiceImpl implements MenkshiFileProcessingSe
 					System.out.println("------------> E-Invoices PDF Linked With Excel Data For "+invoiceData.getOwnerName()+" <-------------");
 					SendEmailRequest request = new SendEmailRequest();
 					request.setMailTo(invoiceData.getMailTo());
+					request.setMailBCC("rajesh@meenakshigroup.com,sskrajesh9@gmail.com,bhaskarkamma5@gmail.com");
 					request.setSubject("Facilitation E-Invoice for " + invoiceData.getMonth());
 					request.setFileByteArray(pdfDetails.get(invoiceData.getInvNum()));					
 					String fileName = invoiceData.getId() + "." + invoiceData.getOwnerName() + "_"
 							+ invoiceData.getMonth() + date;
 					request.setFileName(fileName);
-					request.setCounterParty(invoiceData.getOwnerName());
+					request.setCounterParty(invoiceData.getId() + "_" + invoiceData.getOwnerName());
 					request.setFinPeriod(invoiceData.getMonth());
 					BulkMailSendingModel bulkMailSender = new BulkMailSendingModel();
 					bulkMailSender.setMailRequest(request);
