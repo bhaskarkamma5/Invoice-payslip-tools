@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +36,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.tools.models.BulkMailSendingModel;
 import com.tools.models.PlanBPayslipExcelData;
 import com.tools.models.ResponseModel;
 import com.tools.models.SendEmailRequest;
@@ -274,7 +276,6 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 				Font dataFont = new Font(FontFamily.TIMES_ROMAN, 12);
 				Font headerFont = new Font(FontFamily.TIMES_ROMAN, 16, Font.BOLD);
 				Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.GREEN);
-				//PdfFont font = PdfFontFactory.createFont(FontConstants.HELVETICA_BOLD);
 				/* Font Styles End */
 
 				Rectangle rect= new Rectangle(577,825,18,15); // you can resize rectangle 
@@ -285,91 +286,116 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 			    rect.setBorderColor(BaseColor.BLACK);
 			    rect.setBorderWidth(1);
 			    document.add(rect);
-			     
-				PdfPTable table = new PdfPTable(1);
-				table.setWidthPercentage(100);
+			    
+			    float tableWidth = 110;
+			    
+			    PdfPTable table = new PdfPTable(3);
+				table.setWidthPercentage(tableWidth);
 				PdfPCell cellOne = new PdfPCell();
-				ClassPathResource resource = new ClassPathResource("/images/Meenakshi_Logo.bmp");
+				ClassPathResource resource = new ClassPathResource("/images/planb_logo_img.png");
 				Image image1 = Image.getInstance(resource.getFile().getPath());
 				image1.scaleAbsolute(150, 50);
 				image1.setAlignment(Image.MIDDLE);
 				cellOne = new PdfPCell(image1);
-				cellOne.setHorizontalAlignment(Element.ALIGN_CENTER);
-				cellOne.setPaddingTop(5f);
+				cellOne.setHorizontalAlignment(Element.ALIGN_LEFT);
+				cellOne.setPadding(5f);
+				//cellOne.setPaddingBottom(5f);
 				cellOne.setBorderWidthRight(0f);
-				//table.addCell(cellOne);
-				String menkshiAddr = "Plan - B Software solutions Private Limited\n"
-						+ "Teacher's Colony, Vijayawada, Andhra Pradesh 520008";
-				cellOne = new PdfPCell(new Phrase(menkshiAddr, titleFont));
-				cellOne.setHorizontalAlignment(Element.ALIGN_CENTER);
-				//cellOne.setBorderWidthLeft(0f);
 				table.addCell(cellOne);
-				table.setWidthPercentage(100);
+				String planbAddr = "\nPlan - B Software solutions Private Limited\n\n"+
+				"Teacher's Colony, Vijayawada, Andhra Pradesh 520008";
+				cellOne = new PdfPCell(new Phrase(planbAddr, textBOLD));
+				cellOne.setHorizontalAlignment(Element.ALIGN_LEFT);
+				cellOne.setBorderWidthLeft(0f);
+				cellOne.setColspan(2);
+				table.addCell(cellOne);
 				table.setHorizontalAlignment(Element.ALIGN_CENTER);
 				document.add(table);
 
-				float[] columnWidths = { 28f, 50f, 28f, 50f};
+				float[] columnWidths = { 45f, 70f, 45f, 70f};
 				PdfPTable table1 = new PdfPTable(columnWidths);
-				table1.setWidthPercentage(100);
+				table1.setWidthPercentage(tableWidth);
 				table1.setHorizontalAlignment(Element.ALIGN_CENTER);
 				insertTableCell(table1, "Payslip for the month of " + payslip.getMonth(), Element.ALIGN_CENTER, 4, textBOLD,
 						"ALL_NONE", "");
-				String empDataHeader = "Emp Name\nPan Number\nPF No\nESIC\nBank A/C No";
-				insertTableCell(table1, empDataHeader, Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
 				
-				String empDetails = ": "+payslip.getEmpName() + "\n: " + payslip.getPanNum()
-				+ "\n: " + payslip.getPfNum()+ "\n: " + payslip.getEsiNum()+ "\n: " + payslip.getBankaccNum();
-				insertTableCell(table1, empDetails, Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
-				
-				String empDataHeader2 = "Emp Code\nJoin Date\nDepartment\nDesignation\nUAN Number";
-				insertTableCell(table1, empDataHeader2, Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
-				
-				String empData2 = ": " + payslip.getEmpCode() + "\n: " + payslip.getJoinDate()
-				+ "\n: " + payslip.getDepartment() + "\n: " + payslip.getDesignation()+ "\n: " + payslip.getUan();
-				insertTableCell(table1, empData2, Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				/* New Code*/
+				insertTableCell(table1, "Emp Name", Element.ALIGN_LEFT, 1, dataFont, "bottom-right", "");
+				insertTableCell(table1, ": "+payslip.getEmpName(), Element.ALIGN_LEFT, 1, dataFont, "bottom-left-right", "");
+				insertTableCell(table1, "Emp Code", Element.ALIGN_LEFT, 1, dataFont, "bottom-right", "");
+				insertTableCell(table1, ": "+payslip.getEmpCode(), Element.ALIGN_LEFT, 1, dataFont, "bottom-left", "");
+				insertTableCell(table1, "Pan Number", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table1, ": "+payslip.getPanNum(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table1, "Join Date", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table1, ": "+payslip.getJoinDate(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table1, "PF No", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table1, ": "+payslip.getPfNum(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table1, "Department", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table1, ": "+payslip.getDepartment(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table1, "ESIC", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table1, ": "+payslip.getEsiNum(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table1, "Designation", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table1, ": "+payslip.getDesignation(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table1, "Bank A/C No", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_1", "");
+				insertTableCell(table1, ": "+payslip.getBankaccNum(), Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_2L", "");
+				insertTableCell(table1, "UAN Number", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_1", "");
+				insertTableCell(table1, ": "+payslip.getUan(), Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_2", "");
 		
 				insertTableCell(table1, "", Element.ALIGN_CENTER, 4, headerFont,"ALL_NONE", "");
 				
-				String empDataHeader3 = "Month Days\nPaid Leaves";
-				insertTableCell(table1, empDataHeader3, Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
-				
-				String empDetails3 = ": " + payslip.getPresentDays() + "\n: " + payslip.getPaidLeaves();
-				insertTableCell(table1, empDetails3, Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
-				
-				String empDataHeader4 = "LOP\nPayable Days";
-				insertTableCell(table1, empDataHeader4, Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
-				
-				String empDetails4 = ": " + payslip.getLop() + "\n: " + payslip.getPayableDays();
-				insertTableCell(table1, empDetails4, Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table1, "Month Days", Element.ALIGN_LEFT, 1, dataFont, "bottom-right", "");
+				insertTableCell(table1, ": "+payslip.getPresentDays()+"", Element.ALIGN_LEFT, 1, dataFont, "bottom-left-right", "");
+				insertTableCell(table1, "LOP", Element.ALIGN_LEFT, 1, dataFont, "bottom-right", "");
+				insertTableCell(table1, ": "+payslip.getLop()+"", Element.ALIGN_LEFT, 1, dataFont, "bottom-left", "");
+				insertTableCell(table1, "Paid Leaves", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_1", "");
+				insertTableCell(table1, ": "+payslip.getPaidLeaves()+"", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_2L", "");
+				insertTableCell(table1, "Payable Days", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_1", "");
+				insertTableCell(table1, ": "+payslip.getPayableDays()+"", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_2", "");
 				
 				document.add(table1);
 
 				PdfPTable table2 = new PdfPTable(columnWidths);
-				table2.setWidthPercentage(100);
+				table2.setWidthPercentage(tableWidth);
 				table2.setHorizontalAlignment(Element.ALIGN_CENTER);
 				insertTableCell(table2, "", Element.ALIGN_CENTER, 4, headerFont,"ALL_NONE", "");
-				insertTableCell(table2, "Earnings", Element.ALIGN_CENTER, 2, textBOLD, "", "#A9A9A9");
-				insertTableCell(table2, "Deductions", Element.ALIGN_CENTER, 2, textBOLD, "", " #A9A9A9");
+				insertTableCell(table2, "Earnings", Element.ALIGN_CENTER, 2, textBOLD, "right", "#A9A9A9");
+				insertTableCell(table2, "Deductions", Element.ALIGN_CENTER, 2, textBOLD, "", " #A9A9A9");				
 				
-				String salaryHeader = "Basic+DA\nHRA\nConveyance\nBasket Allowance\nOver Time\nincentives";
-				insertTableCell(table2, salaryHeader, Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, "Basic+DA", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getBasicAndDa(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table2, "PF", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getPf(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table2, "HRA", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getHra(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table2, "ESI", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getEsi(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table2, "Conveyance", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getConAllowed(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table2, "PT", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getProfTax(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table2, "Basket Allowance", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getBasketAllowence(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table2, "IT", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getItDeductions(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table2, "Over Time", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getBonus(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table2, "Incentives", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getBonus(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
 				
-				String salaryDetails = ": " + payslip.getBasicAndDa() + "\n: " + payslip.getHra()
-				+ "\n: " + payslip.getConAllowed()+ "\n: " + payslip.getBasketAllowence()
-				+ "\n: " + 0.0+ "\n: " + payslip.getBonus();
-				insertTableCell(table2, salaryDetails, Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table2, "Total Earnings", Element.ALIGN_LEFT, 1, dataFont, "right", "");
+				insertTableCell(table2, ": "+payslip.getTotalEarnings(), Element.ALIGN_LEFT, 1, dataFont, "right-left", "");
+				insertTableCell(table2, "Total Deductions", Element.ALIGN_LEFT, 1, dataFont, "right", "");
+				insertTableCell(table2, ": "+payslip.getTotalDeductions(), Element.ALIGN_LEFT, 1, dataFont, "left", "");
 				
-				String salaryHeader2 = "PF\nESI\nPT\nIT";
-				insertTableCell(table2, salaryHeader2, Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_1", "");
+				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_2L", "");
+				insertTableCell(table2, "Net Salary", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_1", "");
+				insertTableCell(table2, ": "+payslip.getTotalPayable(), Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_2", "");
 				
-				String salaryDetails2 = ": " + payslip.getPf() + "\n: " + payslip.getEsi()
-				+ "\n: " + payslip.getProfTax() + "\n: " + payslip.getItDeductions();
-				insertTableCell(table2, salaryDetails2, Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
-				
-				insertTableCell(table2, "Total Earnings : "+payslip.getTotalEarnings(), Element.ALIGN_CENTER, 2, textBOLD, "", "");
-				insertTableCell(table2, "Total Deductions : "+payslip.getTotalDeductions(), Element.ALIGN_CENTER, 2, textBOLD, "", "");
-				
-				insertTableCell(table2, "Net Salary : "+payslip.getTotalPayable(), Element.ALIGN_RIGHT, 4, textBOLD, "head", "");
 				document.add(table2);				
 				document.close();
 				String date = new SimpleDateFormat("E_MMM_dd_HH_m_ss_z_yyyy").format(new Date());
@@ -378,22 +404,22 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 				System.out.println(
 						"------------> PDF Generation Completed for " + payslip.getEmpName() + " <-------------");
 				multiPdfSource.add(new ByteArrayInputStream(out.toByteArray()));
-				/*SendEmailRequest request = new SendEmailRequest();
-				request.setMailTo(invoice.getMailTo());
-				request.setMailCC(invoice.getMailCC());
-				request.setMailBCC(invoice.getMailBCC());
-				request.setSubject("Facilitation Invoice for " + invoice.getMonth());
-				request.setFinPeriod(invoice.getMonth());
+				SendEmailRequest request = new SendEmailRequest();
+				request.setMailTo(payslip.getMailTo());
+				request.setMailCC(payslip.getMailCC());
+				request.setMailBCC(payslip.getMailBCC());
+				request.setSubject("Facilitation Invoice for " + payslip.getMonth());
+				request.setFinPeriod(payslip.getMonth());
 				request.setFileName(fileName);
 				request.setFolderName(folder);
-				request.setCounterParty(invoice.getId() + "_" + invoice.getOwnerName());
-				request.setCounterPartyId(invoice.getInvNum());
+				request.setCounterParty(payslip.getId() + "_" + payslip.getEmpName());
+				request.setCounterPartyId(payslip.getEmpCode());
 				request.setFileByteArray(out.toByteArray());
 				BulkMailSendingModel bulkMail = new BulkMailSendingModel();
 				bulkMail.setFolderName(folder);
 				bulkMail.setMailRequest(request);
-				bulkMail.setInvoiceData(invoice);*/
-				//mailService.sendEmailWithAttachment(bulkMail);
+				bulkMail.setPayslipData(payslip);
+				planBMailSender.sendEmailWithAttachment(bulkMail);
 			} catch (Exception e) {
 				System.out.println("------------> PDF Generation Issue With Client  " + payslip.getEmpName()
 						+ " <-------------");
@@ -408,19 +434,36 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 	private void insertTableCell(PdfPTable table, String text, int align, int colspan, Font font, String position,
 			String color) {
 		PdfPCell cell = new PdfPCell(new Phrase(text.trim(), font));
+		List<String> rightPostionList = Arrays.asList("DATA_HEADER","DETAILS_DATA_RIGHT","LAST_COL_1","LAST_COL_2L");
+		List<String> leftPostionList = Arrays.asList("DETAILS_DATA","DETAILS_DATA_RIGHT","LAST_COL_2","LAST_COL_2L");
+		List<String> bottomPostionList = Arrays.asList("DATA_HEADER","DETAILS_DATA","DETAILS_DATA_RIGHT","bottom");
 		cell.setHorizontalAlignment(align);
-		cell.setColspan(colspan);
+		cell.setColspan(colspan);		
 		if (text.trim().equalsIgnoreCase("")) {
 			cell.setMinimumHeight(15f);
 		}
 		if (!color.isEmpty() && color != null) {
 			cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
 		}
-		if (position.equalsIgnoreCase("DATA_HEADER") || position.equalsIgnoreCase("DETAILS_DATA_RIGHT"))
+		if (rightPostionList.contains(position)){
 			cell.setBorderWidthRight(0);
-		if (position.equalsIgnoreCase("DETAILS_DATA") || position.equalsIgnoreCase("DETAILS_DATA_RIGHT"))
+			cell.setBorderWidthTop(0);
+		}
+		if (leftPostionList.contains(position)){
 			cell.setBorderWidthLeft(0);
-		if (position.equals("bottom"))
+			cell.setBorderWidthTop(0);
+		}
+		if (position.equals("left")){
+			cell.setBorderWidthLeft(0);
+		}
+		if (position.equals("right")){
+			cell.setBorderWidthRight(0);
+		}
+		if (position.equals("right-left")){
+			cell.setBorderWidthRight(0);
+			cell.setBorderWidthLeft(0);
+		}
+		if (bottomPostionList.contains(position))
 			cell.setBorderWidthBottom(0);
 		if (position.equals("top-bottom")) {
 			cell.setBorderWidthTop(0);
@@ -430,14 +473,27 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 			cell.setBorderWidthRight(0);
 			cell.setBorderWidthBottom(0);
 		}
+		if (position.equals("bottom-left")) {
+			cell.setBorderWidthLeft(0);
+			cell.setBorderWidthBottom(0);
+		}
 		if (position.equals("ALL_NONE")) {
 			cell.setBorderWidthRight(0);
 			cell.setBorderWidthBottom(0);
 			cell.setBorderWidthTop(0);
 			cell.setBorderWidthLeft(0);
 		}
-		cell.setFixedHeight(45f);
-		cell.setPaddingBottom(2f);
+		if (position.equals("bottom-left-right")) {
+			cell.setBorderWidthRight(0);
+			cell.setBorderWidthBottom(0);
+			cell.setBorderWidthLeft(0);
+		}
+		cell.setPadding(3f);
+		List<String> heightPostionList = Arrays.asList("DATA_HEADER","DETAILS_DATA","DETAILS_DATA_RIGHT");
+		/*if (!heightPostionList.contains(position)) {
+			cell.setFixedHeight(45f);
+			cell.setPadding(2f);
+		}*/
 		table.addCell(cell);
 	}
 	
@@ -463,13 +519,13 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 				fos.flush();
 				fos.close();
 			}
-			/*SendEmailRequest request = new SendEmailRequest();
+			SendEmailRequest request = new SendEmailRequest();
 			request.setMailTo("sskrajesh9@gmail.com,bhaskarkamma5@gmail.com");
 			request.setSubject("PlanB PaySlip");
 			request.setContent("Payslip Mails Processing Count '" + multiplePdf.size() + "'");
 			request.setFileByteArray(out.toByteArray());
 			request.setFileName("OverallInvoices");
-			planBMailSender.sendRegularEmail(request);*/
+			planBMailSender.sendRegularEmail(request);
 			System.out.println("------------> OverallInvoices PDF Generation Completed <-------------");
 		} catch (Exception e) {
 			System.out.println("------------> OverallInvoices PDF Generation Issue <-------------");

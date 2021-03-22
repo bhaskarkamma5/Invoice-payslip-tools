@@ -9,6 +9,8 @@ public class BulkMailSendingModel {
 	private SendEmailRequest mailRequest = new SendEmailRequest();
 
 	private MeenakshiInvsExcelData invoiceData = new MeenakshiInvsExcelData();
+	
+	PlanBPayslipExcelData payslipData = new PlanBPayslipExcelData();
 
 	public String getFolderName() {
 		return folderName;
@@ -40,6 +42,14 @@ public class BulkMailSendingModel {
 
 	public void setInvoiceData(MeenakshiInvsExcelData invoiceData) {
 		this.invoiceData = invoiceData;
+	}
+
+	public PlanBPayslipExcelData getPayslipData() {
+		return payslipData;
+	}
+
+	public void setPayslipData(PlanBPayslipExcelData payslipData) {
+		this.payslipData = payslipData;
 	}
 
 }
