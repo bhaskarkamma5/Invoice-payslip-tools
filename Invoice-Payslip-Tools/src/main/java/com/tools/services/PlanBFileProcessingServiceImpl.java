@@ -267,7 +267,7 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 				System.out.println(
 						"------------> PDF Generation Started for " + payslip.getEmpName() + " <-------------");
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				Document document = new Document(PageSize.A4, 60, 60, 120, 80);
+				Document document = new Document(PageSize.A4, 60, 60, 60, 10);
 				PdfWriter.getInstance(document, out);
 				document.open();
 
@@ -278,7 +278,7 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 				Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.GREEN);
 				/* Font Styles End */
 
-				Rectangle rect= new Rectangle(577,825,18,15); // you can resize rectangle 
+				Rectangle rect= new Rectangle(577,800,18,15); // you can resize rectangle 
 			    rect.enableBorderSide(1);
 			    rect.enableBorderSide(2);
 			    rect.enableBorderSide(4);
@@ -302,8 +302,12 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 				//cellOne.setPaddingBottom(5f);
 				cellOne.setBorderWidthRight(0f);
 				table.addCell(cellOne);
-				String planbAddr = "\nPlan - B Software solutions Private Limited\n\n"+
-				"Teacher's Colony, Vijayawada, Andhra Pradesh 520008";
+				String unitAddr="";
+				if("Vijayawada".equalsIgnoreCase(payslip.getUnit()))
+					unitAddr="Teacher's Colony, Vijayawada, Andhra Pradesh 520008";
+				else if("Hyderabad".equalsIgnoreCase(payslip.getUnit()))
+					unitAddr="002 A Block, MJR Magnifique, Khajaguda X Road,\nRaidurgam, Hyderabad, Telangana-500008";
+				String planbAddr = "Plan - B Software solutions Private Limited\n\n"+unitAddr;
 				cellOne = new PdfPCell(new Phrase(planbAddr, textBOLD));
 				cellOne.setHorizontalAlignment(Element.ALIGN_LEFT);
 				cellOne.setBorderWidthLeft(0f);
@@ -358,8 +362,8 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 				table2.setWidthPercentage(tableWidth);
 				table2.setHorizontalAlignment(Element.ALIGN_CENTER);
 				insertTableCell(table2, "", Element.ALIGN_CENTER, 4, headerFont,"ALL_NONE", "");
-				insertTableCell(table2, "Earnings", Element.ALIGN_CENTER, 2, textBOLD, "right", "#A9A9A9");
-				insertTableCell(table2, "Deductions", Element.ALIGN_CENTER, 2, textBOLD, "", " #A9A9A9");				
+				insertTableCell(table2, "Earnings", Element.ALIGN_CENTER, 2, textBOLD, "right", "");
+				insertTableCell(table2, "Deductions", Element.ALIGN_CENTER, 2, textBOLD, "", "");				
 				
 				insertTableCell(table2, "Basic+DA", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
 				insertTableCell(table2, ": "+payslip.getBasicAndDa(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
@@ -378,23 +382,25 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 				insertTableCell(table2, "IT", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
 				insertTableCell(table2, ": "+payslip.getItDeductions(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
 				insertTableCell(table2, "Over Time", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
-				insertTableCell(table2, ": "+payslip.getBonus(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
-				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
-				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
+				insertTableCell(table2, ": ******", Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
+				insertTableCell(table2, "Other Deductions", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
+				insertTableCell(table2, ": "+payslip.getOtherDeductions(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
 				insertTableCell(table2, "Incentives", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
 				insertTableCell(table2, ": "+payslip.getBonus(), Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA_RIGHT", "");
 				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "DATA_HEADER", "");
 				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "DETAILS_DATA", "");
 				
-				insertTableCell(table2, "Total Earnings", Element.ALIGN_LEFT, 1, dataFont, "right", "");
+				insertTableCell(table2, "Total Earnings", Element.ALIGN_LEFT, 1, textBOLD, "right", "");
 				insertTableCell(table2, ": "+payslip.getTotalEarnings(), Element.ALIGN_LEFT, 1, dataFont, "right-left", "");
-				insertTableCell(table2, "Total Deductions", Element.ALIGN_LEFT, 1, dataFont, "right", "");
+				insertTableCell(table2, "Total Deductions", Element.ALIGN_LEFT, 1, textBOLD, "right", "");
 				insertTableCell(table2, ": "+payslip.getTotalDeductions(), Element.ALIGN_LEFT, 1, dataFont, "left", "");
 				
 				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_1", "");
 				insertTableCell(table2, "", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_2L", "");
-				insertTableCell(table2, "Net Salary", Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_1", "");
+				insertTableCell(table2, "Net Salary", Element.ALIGN_LEFT, 1, textBOLD, "LAST_COL_1", "");
 				insertTableCell(table2, ": "+payslip.getTotalPayable(), Element.ALIGN_LEFT, 1, dataFont, "LAST_COL_2", "");
+				insertTableCell(table2, "", Element.ALIGN_CENTER, 4, dataFont, "ALL_NONE", "");
+				insertTableCell(table2, "This is a Computer-generated statement signature not required", Element.ALIGN_CENTER, 4, dataFont, "ALL_NONE", "");				
 				
 				document.add(table2);				
 				document.close();
@@ -405,10 +411,10 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 						"------------> PDF Generation Completed for " + payslip.getEmpName() + " <-------------");
 				multiPdfSource.add(new ByteArrayInputStream(out.toByteArray()));
 				SendEmailRequest request = new SendEmailRequest();
-				request.setMailTo(payslip.getMailTo());
-				request.setMailCC(payslip.getMailCC());
-				request.setMailBCC(payslip.getMailBCC());
-				request.setSubject("Facilitation Invoice for " + payslip.getMonth());
+				request.setMailTo(payslip.getEmpMailId());
+				//request.setMailCC(payslip.getMailCC());
+				//request.setMailBCC(payslip.getMailBCC());
+				request.setSubject("Payslip for the month of " + payslip.getMonth());
 				request.setFinPeriod(payslip.getMonth());
 				request.setFileName(fileName);
 				request.setFolderName(folder);
@@ -489,11 +495,6 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 			cell.setBorderWidthLeft(0);
 		}
 		cell.setPadding(3f);
-		List<String> heightPostionList = Arrays.asList("DATA_HEADER","DETAILS_DATA","DETAILS_DATA_RIGHT");
-		/*if (!heightPostionList.contains(position)) {
-			cell.setFixedHeight(45f);
-			cell.setPadding(2f);
-		}*/
 		table.addCell(cell);
 	}
 	
@@ -521,10 +522,10 @@ public class PlanBFileProcessingServiceImpl implements PlanBFileProcessingServic
 			}
 			SendEmailRequest request = new SendEmailRequest();
 			request.setMailTo("sskrajesh9@gmail.com,bhaskarkamma5@gmail.com");
-			request.setSubject("PlanB PaySlip");
+			request.setSubject("PlanB Payslip Info");
 			request.setContent("Payslip Mails Processing Count '" + multiplePdf.size() + "'");
 			request.setFileByteArray(out.toByteArray());
-			request.setFileName("OverallInvoices");
+			request.setFileName("OverallPayslips");
 			planBMailSender.sendRegularEmail(request);
 			System.out.println("------------> OverallInvoices PDF Generation Completed <-------------");
 		} catch (Exception e) {
